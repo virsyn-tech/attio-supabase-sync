@@ -248,13 +248,18 @@ def transform_merchant(merchant: dict) -> dict:
     person = fetch_person(people_ids[0]) if people_ids else {}
 
     # Convert master_agent_rate from text to numeric
-    master_agent_rate_str = master_agent.get('master_agent_rate')
-    master_agent_rate = None
-    if master_agent_rate_str:
-        try:
-            master_agent_rate = float(master_agent_rate_str)
-        except (ValueError, TypeError):
-            master_agent_rate = None
+    # Peter Willis: if he is both agent and master agent, MA rate = 0
+    if (agent_ids and master_agent_ids and agent_ids[0] == master_agent_ids[0]
+            and agent.get('agent_name') == 'Peter Willis'):
+        master_agent_rate = 0
+    else:
+        master_agent_rate_str = master_agent.get('master_agent_rate')
+        master_agent_rate = None
+        if master_agent_rate_str:
+            try:
+                master_agent_rate = float(master_agent_rate_str)
+            except (ValueError, TypeError):
+                master_agent_rate = None
 
     # Map to Supabase columns (snake_case for Agent Reports project)
     return {

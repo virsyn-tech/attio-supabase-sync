@@ -242,6 +242,12 @@ def transform_merchant(merchant: dict) -> dict:
     master_agent_ids = get_record_reference_ids(values, 'master_agent')
     master_agent = fetch_agent(master_agent_ids[0]) if master_agent_ids else {}
 
+    # Peter Willis: if he is both agent and master agent, MA rate = 0
+    master_agent_rate = master_agent.get('master_agent_rate')
+    if agent_ids and master_agent_ids and agent_ids[0] == master_agent_ids[0]:
+        if agent.get('agent_name') == 'Peter Willis':
+            master_agent_rate = 0
+
     # Resolve People reference (first person only)
     people_ids = get_record_reference_ids(values, 'people')
     person = fetch_person(people_ids[0]) if people_ids else {}
@@ -259,7 +265,7 @@ def transform_merchant(merchant: dict) -> dict:
         'Agent Name': agent.get('agent_name'),
         'Agent Rate': agent.get('agent_commission_rate'),
         'Master Agent Name': master_agent.get('agent_name'),
-        'Master Agent Rate': master_agent.get('master_agent_rate'),
+        'Master Agent Rate': master_agent_rate,
         'Status': get_attribute_value(values, 'account_status'),
         'Owner/ Manager Name': person.get('name'),
         'Email': person.get('email'),
